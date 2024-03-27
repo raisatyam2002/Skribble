@@ -15,31 +15,22 @@ const io = new Server(server, {
 app.use(cors());
 io.on("connection", (socket) => {
   console.log("User connected");
-  console.log("user id", socket.id);
-  console.log("hi");
-  // socket.on("drawingData", (message) => {
-  //   console.log("Received drawing data:", message.height);
-  //   io.emit("drawingData", "satyamRai");
-  // });
-  socket.on("drawingData", (message) => {
-    console.log("got it ");
-    // const { data, width, height } = message;
-    // const imageData = new ImageData(
-    //   Uint8ClampedArray.from(data),
-    //   width,
-    //   height
-    // );
-    // Process the received imageData as needed
+  // console.log("user id", socket.id);
+  // console.log("hi");
 
-    console.log(message);
-    socket.broadcast.emit("drawingData", message);
+  socket.on("drawingData", (data) => {
+    // Emit the received drawing data to all clients in the specified room
+    if (data.roomName) {
+      io.to(data.roomName).emit("drawingData", data);
+      console.log("Drawing data emitted to room:", data.roomName);
+    } else {
+      console.log("Room name is missing. Drawing data not emitted.");
+    }
   });
 
-  socket.on("hello", (data) => {
-    console.log("data is", data);
-  });
-  socket.on("testing", (data) => {
-    console.log("test", data);
+  socket.on("join-room", (room) => {
+    socket.join(room);
+    console.log(socket.id + "is joined " + room);
   });
 });
 app.get("/", (req, res) => {
