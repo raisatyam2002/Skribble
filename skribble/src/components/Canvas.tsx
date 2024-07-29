@@ -17,6 +17,7 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
   const [is_drawing, setDrawing] = useState(false);
   const [undoContext, setUndoContext] = useState<any>([]);
   const roomName = useParams().roomName;
+  const [users, setConnectedUsers] = useState<String[]>([]);
 
   // const [check, setCheck] = useState("start");
 
@@ -38,18 +39,18 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
       newSocket.emit("join-room", { room: roomName, userName: user.userName });
       newSocket.on("users-in-room", (users: string[]) => {
         console.log("Users in room:", users);
-        // setConnectedUsers(users);
+        setConnectedUsers(users);
       });
     }
     // socket.emit("hello", "hi from client");
-    // return () => {
-    //   newSocket.disconnect();
-    // };
-  }, []);
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [user.userName]);
   const sendDrawingData = (imageData: any) => {
     if (socket != null) {
       // console.log(imageData);
-      console.log("socket is", socket.id);
+      // console.log("socket is", socket.id);
       // const { data, width, height } = imageData;
       // const message = {
       //   data: Array.from(data), // Convert the Uint8ClampedArray to a regular array
@@ -75,20 +76,20 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
       //   context.lineJoin = "round";
       //   context.closePath();
       // });
-      console.log("ssdds");
+      // console.log("ssdds");
     }
   };
   useEffect(() => {
     // Listen for "drawingData" event
     if (socket) {
       socket.on("drawingData", (data: any) => {
-        console.log(
-          "Received drawing data from room:",
-          data.roomName,
-          "my room is ",
-          roomName
-        );
-        if (data.roomName) console.log("Data is", data.data);
+        // console.log(
+        //   "Received drawing data from room:",
+        //   data.roomName,
+        //   "my room is ",
+        //   roomName
+        // );
+        // if (data.roomName) console.log("Data is", data.data);
 
         // Extract data from the received object
         const { coordinates, color, lineWidth } = data.data;
@@ -114,7 +115,7 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
 
   function change_color(color: string) {
     setCurrentColor(color);
-    console.log("color is " + color);
+    // console.log("color is " + color);
   }
   function change_stroke_width(width: number) {
     setLineWidth(width);
@@ -188,7 +189,7 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
   };
   const Undo = () => {
     if (undoContext.length > 0) {
-      console.log("undo button is pressed");
+      // console.log("undo button is pressed");
 
       // Pop the last context from the undoContext array
       undoContext.pop();
@@ -218,38 +219,56 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
     setContext(context);
     setUndoContext([]);
   };
+  const userItemHeight = 30; // height for each user item in pixels
+  const listHeight = users.length * userItemHeight;
   return (
     <div
-      className="h-lvh flex justify-center bg-blue-500"
+      className="h-lvh flex justify-center bg-blue-500 "
       style={{ backgroundImage: `url(${background})` }}
     >
-      <div className="bg-white mt-24 mb-4 h-[550px]">
-        <h1>{user.userName}</h1>
+      <div className="mt-40 flex gap-2">
+        <div
+          className="bg-white rounded-sm"
+          style={{
+            height: `${listHeight}px`,
+            overflowY: "auto",
+            width: "120px",
+          }}
+        >
+          <ul>
+            {users.map((user, index) => (
+              <li key={index}>
+                {index + 1} {user}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="bg-white  h-[550px]">
+          <h1>{user.userName}</h1>
 
-        <canvas
-          className="border-2 border-black border-solid"
-          ref={canvasRef}
-          onMouseDown={start}
-          onMouseMove={draw}
-          onMouseUp={stop}
-          onMouseOut={stop}
-          {...props}
-        />
-        <Tools
-          change_color={change_color}
-          change_stroke_width={change_stroke_width}
-          Undo={Undo}
-          Clear={Clear}
-        ></Tools>
+          <canvas
+            className="border-2 border-black border-solid"
+            ref={canvasRef}
+            onMouseDown={start}
+            onMouseMove={draw}
+            onMouseUp={stop}
+            onMouseOut={stop}
+            {...props}
+          />
+          <Tools
+            change_color={change_color}
+            change_stroke_width={change_stroke_width}
+            Undo={Undo}
+            Clear={Clear}
+          ></Tools>
+        </div>
+        <button
+          onClick={() => {
+            socket.emit("test", "testing");
+            console.log("hii");
+          }}
+        ></button>
       </div>
-      <button
-        onClick={() => {
-          socket.emit("test", "testing");
-          console.log("hii");
-        }}
-      >
-        test
-      </button>
       {/* {check} */}
     </div>
   );
