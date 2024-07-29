@@ -1,15 +1,16 @@
 import Card from "./components/Card";
 // import Test from "./components/socket";
-import background from "./img/peakpx.jpg";
+import bgImage from "./img/background:skribble.png";
+import logo from "./img/logo.gif";
 function Home() {
   return (
     <div
-      style={{ backgroundImage: `url(${background})` }}
-      className="h-lvh flex justify-center bg-url[]"
+      style={{ backgroundImage: `url(${bgImage})` }}
+      className="h-lvh flex justify-center "
     >
-      <div className="m-32">
-        <div>
-          <h2>Skribble</h2>
+      <div className="mt-20">
+        <div className="logo mb-4">
+          <img src={logo}></img>
         </div>
         <Card></Card>
       </div>

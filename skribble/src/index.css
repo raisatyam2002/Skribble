@@ -1,3 +1,47 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+body {
+  margin: 0px;
+}
+
+.face {
+  position: relative;
+}
+.color {
+  background-image: url("./img/color_atlas.gif");
+  height: 100%;
+  width: 100%;
+  background-size: 1000% 1000%;
+  position: absolute;
+}
+.eyes {
+  background-image: url("./img/eyes_atlas.gif");
+  height: 100%;
+  width: 100%;
+  background-size: 1000% 1000%;
+  position: absolute;
+}
+.mouth {
+  background-image: url("./img/mouth_atlas.gif");
+  height: 100%;
+  width: 100%;
+  background-size: 1000% 1000%;
+  position: absolute;
+}
+.arrow1 {
+  background-image: url("./img/arrow.gif");
+  background-position: 0 0;
+  width: 5vh;
+  height: 5vh;
+  background-size: 200%;
+  background-repeat: no-repeat;
+}
+.arrow2 {
+  background-image: url("./img/arrow.gif");
+  background-position: 0 100%;
+  width: 5vh;
+  height: 5vh;
+  background-size: 200%;
+  background-repeat: no-repeat;
+}

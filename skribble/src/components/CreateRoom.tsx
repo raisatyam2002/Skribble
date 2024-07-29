@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import background from "../img/peakpx.jpg";
+import background from "../img/background:skribble.png";
 // import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { userName } from "../store/atoms/username";
@@ -19,9 +19,14 @@ function CreateRoom() {
   return (
     <div
       className="h-lvh flex flex-col justify-center items-center p-8 "
-      style={{ backgroundImage: `url(${background})` }}
+      style={{
+        backgroundImage: `url(${background})`,
+      }}
     >
-      <div className="bg-white  w-96 h-72    p-8">
+      <div
+        className="  w-96 h-72    p-8"
+        style={{ backgroundColor: "rgba(12, 44, 150, 0.75)" }}
+      >
         <input
           type="text"
           placeholder="Enter name"

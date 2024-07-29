@@ -12,6 +12,7 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+const rooms = {};
 app.use(cors());
 io.on("connection", (socket) => {
   console.log("User connected");
@@ -22,14 +23,19 @@ io.on("connection", (socket) => {
     // Emit the received drawing data to all clients in the specified room
     if (data.roomName) {
       io.to(data.roomName).emit("drawingData", data);
-      console.log("Drawing data emitted to room:", data.roomName);
     } else {
       console.log("Room name is missing. Drawing data not emitted.");
     }
   });
 
-  socket.on("join-room", (room) => {
+  socket.on("join-room", ({ room, userName }) => {
     socket.join(room);
+    if (!rooms[room]) {
+      rooms[room] = [];
+    }
+    rooms[room].push(userName);
+    io.to(room).emit("users-in-room", rooms[room]);
+    console.log("rooms array is", rooms[room]);
     console.log(socket.id + "is joined " + room);
   });
 });

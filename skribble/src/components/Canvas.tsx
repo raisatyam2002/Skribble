@@ -4,7 +4,7 @@ import { Tools } from "./Tools";
 import { userName } from "../store/atoms/username";
 import { useRecoilValue } from "recoil";
 import { io, Socket } from "socket.io-client";
-import background from "../img/peakpx.jpg";
+import background from "../img/background:skribble.png";
 import { useParams } from "react-router-dom";
 interface CanvasProps {}
 
@@ -35,7 +35,11 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
     const newSocket = io("http://localhost:3000"); // Replace with your backend URL
     setSocket(newSocket);
     if (newSocket) {
-      newSocket.emit("join-room", roomName);
+      newSocket.emit("join-room", { room: roomName, userName: user.userName });
+      newSocket.on("users-in-room", (users: string[]) => {
+        console.log("Users in room:", users);
+        // setConnectedUsers(users);
+      });
     }
     // socket.emit("hello", "hi from client");
     // return () => {
@@ -219,7 +223,7 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
       className="h-lvh flex justify-center bg-blue-500"
       style={{ backgroundImage: `url(${background})` }}
     >
-      <div className="bg-white mt-16 mb-4 h-[550px]">
+      <div className="bg-white mt-24 mb-4 h-[550px]">
         <h1>{user.userName}</h1>
 
         <canvas
