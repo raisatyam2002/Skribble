@@ -28,15 +28,47 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("message", (data) => {
+    console.log("debug 1");
+    if (data.room) {
+      console.log(
+        "Received message:",
+        data.latestMessage,
+        "in room:",
+        data.room
+      );
+      socket.to(data.room).emit("message", data);
+    } else {
+      // console.log("error in getting message");
+    }
+  });
   socket.on("join-room", ({ room, userName }) => {
     socket.join(room);
     if (!rooms[room]) {
       rooms[room] = [];
     }
-    rooms[room].push(userName);
+
+    if (!rooms[room].includes(userName)) {
+      rooms[room].push(userName);
+    }
     io.to(room).emit("users-in-room", rooms[room]);
     console.log("rooms array is", rooms[room]);
     console.log(socket.id + "is joined " + room);
+  });
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+
+    // Find the room and remove the user
+    for (let room in rooms) {
+      if (rooms[room].includes(socket.id)) {
+        rooms[room] = rooms[room].filter((id) => id !== socket.id);
+        io.to(room).emit("users-in-room", rooms[room]);
+        if (rooms[room].length === 0) {
+          delete rooms[room];
+        }
+        break;
+      }
+    }
   });
 });
 app.get("/", (req, res) => {

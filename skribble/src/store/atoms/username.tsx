@@ -6,3 +6,9 @@ export const userName = atom({
     userName: "",
   },
 });
+export const roomName = atom({
+  key: "roomName",
+  default: {
+    roomName: "",
+  },
+});

@@ -6,10 +6,15 @@ import { useRecoilValue } from "recoil";
 import { io, Socket } from "socket.io-client";
 import background from "../img/background:skribble.png";
 import { useParams } from "react-router-dom";
+import logo from "../img/logo.gif";
+import { UsersCard } from "./Users";
+import { ChatBox } from "./ChatBox";
+import { roomX } from "../store/atoms/roomName";
 interface CanvasProps {}
 
 const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
   const user = useRecoilValue(userName);
+  const roomx = useRecoilValue(roomX);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [context, setContext] = useState<any>(null);
   const [currentColor, setCurrentColor] = useState("");
@@ -18,13 +23,15 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
   const [undoContext, setUndoContext] = useState<any>([]);
   const roomName = useParams().roomName;
   const [users, setConnectedUsers] = useState<String[]>([]);
+  const userX = localStorage.getItem("userName");
+  const roomY = localStorage.getItem("roomName");
 
   // const [check, setCheck] = useState("start");
 
   useEffect(() => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
-      canvas.width = 900;
+      canvas.width = 800;
       canvas.height = 500;
       const ctx = canvas.getContext("2d");
       setContext(ctx);
@@ -32,21 +39,62 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
   }, []);
   const [socket, setSocket] = useState<any>(null);
 
+  // useEffect(() => {
+  //   const newSocket = io("http://localhost:3000"); // Replace with your backend URL
+  //   setSocket(newSocket);
+  //   if (newSocket) {
+  //     newSocket.emit("join-room", { room: roomY, userName: roomY });
+  //     newSocket.on("users-in-room", (users: string[]) => {
+  //       console.log("Users in room:", users);
+  //       setConnectedUsers(users);
+  //     });
+  //   }
+  //   // socket.emit("hello", "hi from client");
+  //   return () => {
+  //     newSocket.disconnect();
+  //   };
+  // }, [userX, roomY]);
   useEffect(() => {
-    const newSocket = io("http://localhost:3000"); // Replace with your backend URL
-    setSocket(newSocket);
-    if (newSocket) {
-      newSocket.emit("join-room", { room: roomName, userName: user.userName });
+    // Use localStorage or another persistent storage method to store user and room information
+    // const userId = localStorage.getItem("userName") || generateUserId();
+    // const roomId = localStorage.getItem("roomName") || "custom";
+    const userX = localStorage.getItem("userName") || "satyam";
+    const roomY = localStorage.getItem("roomName") || "custom";
+    // Store the userId and roomId in localStorage if not already stored
+    console.log("chekicng ", 23);
+
+    if (!localStorage.getItem("userId")) {
+      localStorage.setItem("userId", userX);
+    }
+    if (!localStorage.getItem("roomId")) {
+      localStorage.setItem("roomId", roomY);
+    }
+
+    // Check if a socket connection already exists
+    if (!socket) {
+      const newSocket = io("http://localhost:3000", {
+        query: { userX, roomY },
+      });
+      setSocket(newSocket);
+
+      newSocket.emit("join-room", { room: roomY, userName: userX });
+
       newSocket.on("users-in-room", (users: string[]) => {
         console.log("Users in room:", users);
         setConnectedUsers(users);
       });
+
+      // Handle disconnection cleanly
+      return () => {
+        newSocket.disconnect();
+      };
     }
-    // socket.emit("hello", "hi from client");
-    return () => {
-      newSocket.disconnect();
-    };
-  }, [user.userName]);
+  }, [userX, roomY]);
+
+  // function generateUserId() {
+  //   return `user_${Math.random().toString(36).substr(2, 9)}`;
+  // }
+
   const sendDrawingData = (imageData: any) => {
     if (socket != null) {
       // console.log(imageData);
@@ -219,57 +267,52 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
     setContext(context);
     setUndoContext([]);
   };
-  const userItemHeight = 30; // height for each user item in pixels
-  const listHeight = users.length * userItemHeight;
+
   return (
     <div
-      className="h-lvh flex justify-center bg-blue-500 "
       style={{ backgroundImage: `url(${background})` }}
+      className="overflow-y-hidden h-lvh"
     >
-      <div className="mt-40 flex gap-2">
+      {roomY} {userX}
+      <div className="pt-10 ">
+        <div className="logo  ml-24 mb-2 ">
+          <img src={logo}></img>
+        </div>
         <div
-          className="bg-white rounded-sm"
-          style={{
-            height: `${listHeight}px`,
-            overflowY: "auto",
-            width: "120px",
-          }}
+          className="h-lvh flex ml-24 bg-blue-500 "
+          style={{ backgroundImage: `url(${background})` }}
         >
-          <ul>
-            {users.map((user, index) => (
-              <li key={index}>
-                {index + 1} {user}
-              </li>
-            ))}
-          </ul>
+          <div className=" flex gap-2">
+            <UsersCard users={users}></UsersCard>
+            <div className="bg-white  h-[550px]">
+              <canvas
+                className="border-2 border-black border-solid"
+                ref={canvasRef}
+                onMouseDown={start}
+                onMouseMove={draw}
+                onMouseUp={stop}
+                onMouseOut={stop}
+                {...props}
+              />
+              <Tools
+                change_color={change_color}
+                change_stroke_width={change_stroke_width}
+                Undo={Undo}
+                Clear={Clear}
+              ></Tools>
+            </div>
+            <button
+              onClick={() => {
+                socket.emit("test", "testing");
+                console.log("hii");
+              }}
+            ></button>
+            <div className="pt-40">
+              {socket ? <ChatBox socket={socket} /> : <p>Loading...</p>}
+            </div>
+          </div>
         </div>
-        <div className="bg-white  h-[550px]">
-          <h1>{user.userName}</h1>
-
-          <canvas
-            className="border-2 border-black border-solid"
-            ref={canvasRef}
-            onMouseDown={start}
-            onMouseMove={draw}
-            onMouseUp={stop}
-            onMouseOut={stop}
-            {...props}
-          />
-          <Tools
-            change_color={change_color}
-            change_stroke_width={change_stroke_width}
-            Undo={Undo}
-            Clear={Clear}
-          ></Tools>
-        </div>
-        <button
-          onClick={() => {
-            socket.emit("test", "testing");
-            console.log("hii");
-          }}
-        ></button>
       </div>
-      {/* {check} */}
     </div>
   );
 };

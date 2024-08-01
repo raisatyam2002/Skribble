@@ -4,11 +4,13 @@ import background from "../img/background:skribble.png";
 import { useNavigate } from "react-router-dom";
 import { userName } from "../store/atoms/username";
 import { useSetRecoilState } from "recoil";
+import { roomX } from "../store/atoms/roomName";
 function CreateRoom() {
   const navigate = useNavigate();
   const [newRoom, setNewRoom] = useState("");
   const [user, setUser] = useState("");
   const setUserName = useSetRecoilState(userName);
+  const setRoomX = useSetRecoilState(roomX);
   // const [socket, setSocket] = useState<any>(null);
 
   // useEffect(() => {
@@ -52,6 +54,9 @@ function CreateRoom() {
               alert("enter room name");
             } else {
               // socket.emit("join-room", room);
+              setRoomX({
+                roomX: newRoom,
+              });
               navigate(`/canvas/${newRoom}`);
             }
           }}

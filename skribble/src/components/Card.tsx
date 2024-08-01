@@ -3,12 +3,15 @@ import { userName } from "../store/atoms/username";
 import { useSetRecoilState } from "recoil";
 import { useState, useEffect } from "react";
 
+import { roomX } from "../store/atoms/roomName";
+
 // import { io } from "socket.io-client";
 export default function Card() {
   const navigate = useNavigate();
   const setUserName = useSetRecoilState(userName);
   const [user, setUser] = useState("");
   const [room, setRoom] = useState("");
+  const setRoomX = useSetRecoilState(roomX);
 
   const [backgroundPositions, setBackgroundPositions] = useState({
     color: { x: "0", y: "0" },
@@ -71,7 +74,12 @@ export default function Card() {
         type="text"
         placeholder="Enter RoomName"
         value={room}
-        onChange={(e) => setRoom(e.target.value)}
+        onChange={(e) => {
+          setRoom(e.target.value);
+          setRoomX({
+            roomX: e.target.value,
+          });
+        }}
         className="block px-8  h-14 w-80 border border-1 rounded-lg border-gray-900"
       ></input>
       <div className="flex max-w-full h-40 justify-center gap-3">
@@ -115,6 +123,8 @@ export default function Card() {
             alert("enter room name");
           } else {
             // socket.emit("join-room", room);
+            localStorage.setItem("userName", user);
+            localStorage.setItem("roomName", room);
             navigate(`/canvas/${room}`);
           }
         }}
