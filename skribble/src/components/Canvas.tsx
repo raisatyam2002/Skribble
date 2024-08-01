@@ -271,20 +271,19 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
   return (
     <div
       style={{ backgroundImage: `url(${background})` }}
-      className="overflow-y-hidden h-lvh"
+      className="overflow-y-hidden h-lvh cont"
     >
-      {roomY} {userX}
-      <div className="pt-10 ">
-        <div className="logo  ml-24 mb-2 ">
+      <div className="pt-10 cont">
+        <div className="logo  ml-24 mb-2 cont">
           <img src={logo}></img>
         </div>
-        <div
-          className="h-lvh flex ml-24 bg-blue-500 "
-          style={{ backgroundImage: `url(${background})` }}
-        >
-          <div className=" flex gap-2">
-            <UsersCard users={users}></UsersCard>
-            <div className="bg-white  h-[550px]">
+        <div className="h-lvh flex ml-24 cont ">
+          <div className=" flex gap-2 parent">
+            <div className="child1">
+              <UsersCard users={users}></UsersCard>
+            </div>
+
+            <div className="bg-white  h-[550px] child2">
               <canvas
                 className="border-2 border-black border-solid"
                 ref={canvasRef}
@@ -301,13 +300,8 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
                 Clear={Clear}
               ></Tools>
             </div>
-            <button
-              onClick={() => {
-                socket.emit("test", "testing");
-                console.log("hii");
-              }}
-            ></button>
-            <div className="pt-40">
+
+            <div className="pt-40 child3">
               {socket ? <ChatBox socket={socket} /> : <p>Loading...</p>}
             </div>
           </div>
