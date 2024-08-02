@@ -36,7 +36,7 @@ export const ChatBox = ({ socket }: any) => {
   }
 
   return (
-    <div className="bg-white h-96 w-60 relative ">
+    <div className="bg-white h-96 w-60 relative ChatBox ChatBoxDiv">
       <div className="overflow-y-auto h-5/6">
         {messages.map((mess, index) => (
           <p key={index}>

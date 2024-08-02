@@ -30,24 +30,24 @@ export const Tools: React.FC<ToolsProps> = ({
     change_stroke_width(event.target.value);
   }
   return (
-    <div className="flex gap-9 bg-white">
+    <div className="flex gap-9 bg-white Tool">
       <button onClick={Undo}>Undo</button>
       <button onClick={Clear}>Clear</button>
       <div
         onClick={() => handleChange("red")}
-        className="border rounded-full  bg-red-600  w-7"
+        className="border rounded-full  bg-red-600  w-7 tools"
       ></div>
       <div
         onClick={() => handleChange("blue")}
-        className="border rounded-full bg-blue-500 w-7"
+        className="border rounded-full bg-blue-500 w-7 tools"
       ></div>
       <div
         onClick={() => handleChange("green")}
-        className="border rounded-full bg-green-600 w-7"
+        className="border rounded-full bg-green-600 w-7 tools"
       ></div>
       <div
         onClick={() => handleChange("black")}
-        className="border rounded-full bg-black w-7"
+        className="border rounded-full bg-black w-7 tools"
       ></div>
       <input type="color" onChange={handleColorInputChange}></input>
       <input type="range" min="5" max="15" onChange={handleStrokeWidth}></input>

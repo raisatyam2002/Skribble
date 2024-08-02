@@ -33,16 +33,16 @@ export const UsersCard = ({ users }: any) => {
   ];
   return (
     <div
-      className="bg-white rounded-sm"
+      className="bg-white rounded-sm UserCard"
       style={{
         height: `${listHeight}px`,
         overflowY: "auto",
         width: "180px",
       }}
     >
-      <ul>
+      <ul className="UserCard">
         {users.map((user: any, index: any) => (
-          <li key={index} className="flex gap-2 justify-between border-2 h-12">
+          <li key={index} className="flex gap-2 justify-between border-2 h-12 ">
             {index + 1} {user}
             <div className="face w-1/2">
               <div

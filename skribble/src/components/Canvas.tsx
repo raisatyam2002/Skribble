@@ -301,7 +301,7 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
               ></Tools>
             </div>
 
-            <div className="pt-40 child3">
+            <div className="pt-40 child3 ChatBox">
               {socket ? <ChatBox socket={socket} /> : <p>Loading...</p>}
             </div>
           </div>
