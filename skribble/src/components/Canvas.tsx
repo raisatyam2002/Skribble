@@ -72,7 +72,7 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
 
     // Check if a socket connection already exists
     if (!socket) {
-      const newSocket = io("http://localhost:3000", {
+      const newSocket = io("https://skribble-ci9y.onrender.com", {
         query: { userX, roomY },
       });
       setSocket(newSocket);
