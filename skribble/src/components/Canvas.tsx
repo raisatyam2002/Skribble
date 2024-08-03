@@ -35,6 +35,24 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
       setContext(ctx);
     }
   }, []);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    // Adding non-passive event listeners for touch events
+    canvas.addEventListener("touchstart", start, { passive: false });
+    canvas.addEventListener("touchmove", draw, { passive: false });
+    canvas.addEventListener("touchend", stop, { passive: false });
+    canvas.addEventListener("touchcancel", stop, { passive: false });
+
+    return () => {
+      // Cleanup event listeners when component unmounts
+      canvas.removeEventListener("touchstart", start);
+      canvas.removeEventListener("touchmove", draw);
+      canvas.removeEventListener("touchend", stop);
+      canvas.removeEventListener("touchcancel", stop);
+    };
+  }, []);
+
   const [socket, setSocket] = useState<any>(null);
 
   // useEffect(() => {
@@ -128,27 +146,29 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
   useEffect(() => {
     // Listen for "drawingData" event
     if (socket) {
-      socket.on("drawingData", (data: any) => {
-        // console.log(
-        //   "Received drawing data from room:",
-        //   data.roomName,
-        //   "my room is ",
-        //   roomName
-        // );
-        // if (data.roomName) console.log("Data is", data.data);
+      if (context) {
+        socket.on("drawingData", (data: any) => {
+          // console.log(
+          //   "Received drawing data from room:",
+          //   data.roomName,
+          //   "my room is ",
+          //   roomName
+          // );
+          // if (data.roomName) console.log("Data is", data.data);
 
-        // Extract data from the received object
-        const { coordinates, color, lineWidth } = data.data;
+          // Extract data from the received object
+          const { coordinates, color, lineWidth } = data.data;
 
-        // Handle drawing on canvas using the received data
-        context.beginPath();
-        context.moveTo(coordinates.x, coordinates.y);
-        context.strokeStyle = color;
-        context.lineWidth = lineWidth;
-        context.lineTo(coordinates.x, coordinates.y);
-        context.stroke();
-        context.closePath();
-      });
+          // Handle drawing on canvas using the received data
+          context.beginPath();
+          context.moveTo(coordinates.x, coordinates.y);
+          context.strokeStyle = color;
+          context.lineWidth = lineWidth;
+          context.lineTo(coordinates.x, coordinates.y);
+          context.stroke();
+          context.closePath();
+        });
+      }
     }
 
     // Cleanup function to remove the event listener when the component unmounts
@@ -157,7 +177,7 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
         socket.off("drawingData");
       }
     };
-  }, [socket]); // Ensure this effect runs whenever the socket changes
+  }, [socket, context]); // Ensure this effect runs whenever the socket changes
 
   function change_color(color: string) {
     setCurrentColor(color);
@@ -166,18 +186,31 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
   function change_stroke_width(width: number) {
     setLineWidth(width);
   }
-
-  const start = (event: any) => {
-    // console.log("start");
-
-    const x = event.nativeEvent.offsetX;
-    const y = event.nativeEvent.offsetY;
-    if (typeof x === "number" && typeof y === "number") {
-      setDrawing(true);
-      context.beginPath();
-      context.moveTo(x, y);
+  const getCoordinates = (event: any) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    if (event.touches) {
+      return {
+        x: event.touches[0].clientX - rect.left,
+        y: event.touches[0].clientY - rect.top,
+      };
+    } else {
+      return {
+        x: event.nativeEvent.offsetX,
+        y: event.nativeEvent.offsetY,
+      };
     }
-    event.preventDefault();
+  };
+  const start = (event: any) => {
+    console.log("start");
+    if (context) {
+      const { x, y } = getCoordinates(event);
+      if (typeof x === "number" && typeof y === "number") {
+        setDrawing(true);
+        context.beginPath();
+        context.moveTo(x, y);
+      }
+      event.preventDefault();
+    }
   };
   interface DrawingData {
     coordinates: { x: number; y: number }; // Example for coordinates
@@ -187,11 +220,10 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
 
   const draw = (event: any) => {
     // alert("hello");
-    // console.log("draw");
+    console.log("draw");
 
-    if (is_drawing) {
-      const x = event.nativeEvent.offsetX;
-      const y = event.nativeEvent.offsetY;
+    if (is_drawing && context) {
+      const { x, y } = getCoordinates(event);
 
       if (typeof x === "number" && typeof y === "number") {
         context.lineTo(x, y);
@@ -219,9 +251,9 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
   };
 
   const stop = (event: any) => {
-    // console.log("stop")
+    console.log("stop");
 
-    if (is_drawing) {
+    if (is_drawing && context) {
       context.stroke();
       context.closePath();
       setDrawing(false);
@@ -234,7 +266,7 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
     event.preventDefault();
   };
   const Undo = () => {
-    if (undoContext.length > 0) {
+    if (context && undoContext.length > 0) {
       // console.log("undo button is pressed");
 
       // Pop the last context from the undoContext array
@@ -261,9 +293,11 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
     }
   };
   const Clear = () => {
-    context.clearRect(0, 0, 900, 500);
-    setContext(context);
-    setUndoContext([]);
+    if (context) {
+      context.clearRect(0, 0, 900, 500);
+      setContext(context);
+      setUndoContext([]);
+    }
   };
 
   return (
@@ -289,10 +323,10 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
                 onMouseMove={draw}
                 onMouseUp={stop}
                 onMouseOut={stop}
-                onTouchStart={start}
-                onTouchMove={draw}
-                onTouchEnd={stop}
-                onTouchCancel={stop}
+                // onTouchStart={start}
+                // onTouchMove={draw}
+                // onTouchEnd={stop}
+                // onTouchCancel={stop}
                 {...props}
               />
               <Tools
