@@ -1,20 +1,18 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Tools } from "./Tools";
 // import background3 from "../img/background3.png";
-import { userName } from "../store/atoms/username";
-import { useRecoilValue } from "recoil";
-import { io, Socket } from "socket.io-client";
+// import { userName } from "../store/atoms/username";
+// import { useRecoilValue } from "recoil";
+import { io } from "socket.io-client";
 import background from "../img/background:skribble.png";
 import { useParams } from "react-router-dom";
 import logo from "../img/logo.gif";
 import { UsersCard } from "./Users";
 import { ChatBox } from "./ChatBox";
-import { roomX } from "../store/atoms/roomName";
+// import { roomX } from "../store/atoms/roomName";
 interface CanvasProps {}
 
 const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
-  const user = useRecoilValue(userName);
-  const roomx = useRecoilValue(roomX);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [context, setContext] = useState<any>(null);
   const [currentColor, setCurrentColor] = useState("");
@@ -291,6 +289,10 @@ const Canvas: React.FC<CanvasProps> = (props: CanvasProps) => {
                 onMouseMove={draw}
                 onMouseUp={stop}
                 onMouseOut={stop}
+                onTouchStart={start}
+                onTouchMove={draw}
+                onTouchEnd={stop}
+                onTouchCancel={stop}
                 {...props}
               />
               <Tools
